@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\chahn\\Droplet Microscope 2D\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E9B63DB4-A440-444C-0DE6-84B947A4D122}|Assembly-CSharp.csproj|c:\\users\\chahn\\droplet microscope 2d\\assets\\scripts\\lensscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9B63DB4-A440-444C-0DE6-84B947A4D122}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\lensscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "LensScript.cs",
+              "DocumentMoniker": "C:\\Users\\chahn\\Droplet Microscope 2D\\Assets\\Scripts\\LensScript.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\LensScript.cs",
+              "ToolTip": "C:\\Users\\chahn\\Droplet Microscope 2D\\Assets\\Scripts\\LensScript.cs",
+              "RelativeToolTip": "Assets\\Scripts\\LensScript.cs",
+              "ViewState": "AQIAAJAAAAAAAAAAAAAIwLAAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-23T13:34:13.728Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
