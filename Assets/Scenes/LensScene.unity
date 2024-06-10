@@ -289,7 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 3.01
-  PointAmount: 178
+  PointAmount: 1000
   Offest: 5.07
   IndexOfRefraction: 1.33
 --- !u!33 &1754358310
@@ -400,8 +400,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea083b3e6becce94990966afcc8ae052, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RayCount: 100
-  depth: 2
+  RayCount: 3
+  depth: 1
+  DrawNoHits: 1
+  ParallelRays: 0
+  width: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
