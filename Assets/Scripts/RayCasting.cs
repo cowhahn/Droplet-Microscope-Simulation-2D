@@ -9,6 +9,7 @@ public class RayCasting : MonoBehaviour
     public int depth;
     public bool DrawNoHits = true;
     public bool ParallelRays = false;
+    public bool DrawReflection;
     public float width;
     private float LastIndexOfRefraction;
     private RaycastHit2D ray;
@@ -29,7 +30,7 @@ public class RayCasting : MonoBehaviour
         Vector2 direction = new Vector2();
         if (!ParallelRays)
         {
-            direction = ConvertToDirection(Mathf.PI*i/RayCount);
+            direction = ConvertToDirection(Math.PI*i/RayCount);
             pos = transform.position;
             ray = hit(direction, transform.position);
         }
@@ -47,51 +48,30 @@ public class RayCasting : MonoBehaviour
     {
         return Physics2D.Raycast(StartPosition, direction);
     }
-    Vector2 CalculateRefractVector(Vector2 normal, Vector2 ray, float IOR, bool InsideObject)
+    Vector2 CalculateRefractVector(Vector2 normal, Vector2 ray, double IOR, RaycastHit2D rayhit)
     {
-        bool rayUp = false;
-        Vector2 normalSigns = new Vector2(Mathf.Sign(normal.x), Mathf.Sign(normal.y));
-        Vector2 raySigns = new Vector2(Mathf.Sign(ray.x), Mathf.Sign(ray.y));
-        normal = normal.normalized;
-        ray = ray.normalized;
-        normal = new Vector2(Mathf.Abs(normal.x), Mathf.Abs(normal.y));
-        ray = new Vector2(Mathf.Abs(ray.x), Mathf.Abs(ray.y));
-        float theta = (ray.x * normal.y) + (normal.x * ray.y);
-        theta = Mathf.Asin(theta);
-        if (ray.x == 0)
-        {
-            theta = Mathf.Abs(theta);
-            rayUp = true;
-        }
-        if (raySigns.x == raySigns.y && normalSigns.x == normalSigns.y && !rayUp) theta -= 1;
-        if (raySigns.x != raySigns.y && normalSigns.x != normalSigns.y && !rayUp) theta -= 1;
-        theta = Mathf.Sin(theta);
+        double theta = Vector2.Angle(normal, ray);
+        double signTheta = Math.Sign(Vector2.SignedAngle(normal, ray));
+        if (Math.Abs(theta) >= 90) theta = 180 - theta;
+        //Debug.Log("Theta 0: " + theta * signTheta);
+        theta = theta * Math.PI / 180;
+        theta = Math.Sin(theta);
         theta *= IOR;
-        float theta2 = Mathf.Asin(theta);
-        Debug.Log(theta2 * 180 / Math.PI );
-        if (theta2 >= 0)
+        theta = Math.Asin(theta);
+        if (theta > Math.PI / 2 && DrawReflection) return Vector2.Reflect(ray, normal);
+        if (theta > Math.PI / 2 && !DrawReflection) return new Vector2();
+        //Debug.Log("Theta 1: " + theta * 180 / Mathf.PI);
+        Vector2 oppositeNormal = new Vector2(-normal.x, -normal.y);
+        double thetaNormal = Vector2.Angle(normal, Vector2.right);
+        thetaNormal = thetaNormal * Math.PI / 180;
+        if (signTheta == -1)
         {
-            Debug.Log("Type 0");
-            float thetaRay = Mathf.Asin(normal.y);
-            thetaRay += theta2;
-            if (normalSigns.x > 0) thetaRay = Mathf.PI - thetaRay;
-            Vector2 outputDirection = ConvertToDirection(thetaRay);             
-            return new Vector2(outputDirection.x, outputDirection.y);
+            return ConvertToDirection(thetaNormal + theta);
         }
         else
         {
-            Debug.Log("Type 1");
-            float thetaRay = Mathf.Asin(normal.y);
-            thetaRay += theta2;
-            if (normalSigns.x < 0) thetaRay = Mathf.PI - thetaRay;
-            Vector2 outputDirection = ConvertToDirection(thetaRay);           
-            return new Vector2(-outputDirection.x, outputDirection.y);
+            return ConvertToDirection(thetaNormal - theta); 
         }
-    }
-
-    Vector2 CalculateReflectVector(Vector2 normal, Vector2 InDirection)
-    {
-        return new Vector2();
     }
     RaycastHit2D RefractRay(RaycastHit2D ray, Vector2 InDirection, int RefractNum)
     {
@@ -99,9 +79,7 @@ public class RayCasting : MonoBehaviour
         if (RefractNum % 2 == 0) InsideObject = true;
         var LensScript = ray.collider.gameObject.GetComponent<LensScript>();
         Vector2 normal = ray.normal;
-        float IndexOfRefraction;
-        Debug.DrawRay(ray.point,ray.normal, Color.red);
-        Debug.DrawRay(ray.point,-ray.normal, Color.yellow);
+        double IndexOfRefraction;
         if (!InsideObject)
         {
             IndexOfRefraction = 1/LensScript.IndexOfRefraction;
@@ -111,11 +89,7 @@ public class RayCasting : MonoBehaviour
         {
             IndexOfRefraction = LastIndexOfRefraction;
         }
-        Vector2 RefractDirection = CalculateRefractVector(normal, InDirection, IndexOfRefraction, InsideObject);
-        if (RefractDirection == new Vector2(float.NaN, float.NaN))
-        {
-            RefractDirection = CalculateReflectVector(normal, InDirection);
-        }
+        Vector2 RefractDirection = CalculateRefractVector(normal, InDirection, IndexOfRefraction, ray);
         Vector2 offset = RefractDirection / 1000;
         var RefractRay = hit(RefractDirection, ray.point + offset);
         if (RefractRay.collider)
@@ -130,18 +104,18 @@ public class RayCasting : MonoBehaviour
             return RefractRay;
         }
     }
-    Vector2 ConvertToDirection(float theta)
+    Vector2 ConvertToDirection(double theta)
     {
-        float xdir = Mathf.Cos(theta);
-        float ydir = Mathf.Sin(theta);
-        return new Vector2(xdir, ydir);
+        double xdir = Math.Cos(theta);
+        double ydir = Math.Sin(theta);
+        return new Vector2((float)xdir, (float)ydir);
     }
 
     Vector2 GetDirection(Vector2 StartPoint, Vector2 Endpoint)
     {
-        float xdist = Endpoint.x - StartPoint.x;
-        float ydist = Endpoint.y - StartPoint.y;
-        return new Vector2(xdist, ydist);
+        double xdist = Endpoint.x - StartPoint.x;
+        double ydist = Endpoint.y - StartPoint.y;
+        return new Vector2((float)xdist, (float)ydist);
     }
     void Update()
     {

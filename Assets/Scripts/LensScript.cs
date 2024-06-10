@@ -12,6 +12,12 @@ public class LensScript : MonoBehaviour
     public float Offest;
     public float IndexOfRefraction;
 
+    public enum shapes
+    {
+        Lens,
+        semiCircle
+    }
+    public shapes Shapes;
     Mesh mesh;
     Vector3[] vertices;
     int[] triangles;
@@ -61,7 +67,7 @@ public class LensScript : MonoBehaviour
         }
         return vector2s.ToArray();
     }
-    int[] CreateTriangles(Vector3[] vector3s, Vector2[] lens0) 
+    int[] CreateTrianglesLens(Vector3[] vector3s, Vector2[] lens0) 
     {
         List<int> ints = new List<int>();
         for (int i = 0; i < lens0.Length; i++) 
@@ -75,10 +81,22 @@ public class LensScript : MonoBehaviour
         }
         return ints.ToArray();
     }
-    void Start()
+
+    int[] CreateTriangles(Vector3[] vector3s)
     {
-        mesh = GetComponent<MeshFilter>().mesh;
-        collider = GetComponent<EdgeCollider2D>();
+        List<int> ints = new List<int>();
+        for (int i = 0; i < vector3s.Length - 1; i++)
+        {
+            ints.Add(i+1);
+            ints.Add(i);
+            ints.Add(0);
+        }
+        return ints.ToArray();
+    }
+
+    List<Vector2>[] CreateLens()
+    {
+        
 
         Vector2[] EdgePoints0 = DrawCirclePoints(radius, PointAmount);
         Vector2[] EdgePoints1 = DrawCirclePoints(radius, PointAmount);
@@ -92,20 +110,68 @@ public class LensScript : MonoBehaviour
         lens.AddRange(lens0);
         lens.AddRange(lens1);
         lens.Reverse();
+        return new List<Vector2>[] {lens, lens0.ToList()};
+    }
 
-        Vector3[] Vector3Vertices = new Vector3[lens.Count];
-
-        for (int i = 0; i < lens.Count; i++)
+    List<Vector2> CreateSemicircle()
+    {
+        Vector2[] circle = DrawCirclePoints(radius, PointAmount);
+        List<Vector2> semicircle = new List<Vector2>();
+        float dx = (circle[(circle.Length / 2) - 1].x - circle[0].x) / (circle.Length / 2); 
+        for (int i = 0; i < circle.Length / 2; i++)
         {
-            Vector3Vertices[i] = new Vector3(lens[i].x, lens[i].y, 1);
+            semicircle.Add(circle[i]);
         }
-        mesh.Clear();
-        mesh.vertices = Vector3Vertices;
-        mesh.triangles = CreateTriangles(Vector3Vertices, lens0);
-        mesh.RecalculateNormals();
 
-        transform.position = new Vector3(0,-Offest/2,0);
-        collider.points = lens.ToArray();
+        for (int i = 1; i < circle.Length / 2; i++)
+        {
+            semicircle.Add(new Vector2(circle[(circle.Length / 2) - 1].x - (dx * i),
+                circle[(circle.Length / 2) + 1].y));
+        }
 
+        return semicircle;
+    }
+    void Start()
+    {
+        mesh = GetComponent<MeshFilter>().mesh;
+        collider = GetComponent<EdgeCollider2D>();
+        
+        if (Shapes == shapes.Lens)
+        {
+            List<Vector2>[] returnValues = CreateLens();
+            List<Vector2> lens = returnValues[0];
+            Vector2[] lens0 = returnValues[1].ToArray();
+            
+            Vector3[] Vector3Vertices = new Vector3[lens.Count];
+
+            for (int i = 0; i < lens.Count; i++)
+            {
+                Vector3Vertices[i] = new Vector3(lens[i].x, lens[i].y, 1);
+            }
+            mesh.Clear();
+            mesh.vertices = Vector3Vertices;
+            mesh.triangles = CreateTrianglesLens(Vector3Vertices, lens0);
+            mesh.RecalculateNormals();
+
+            transform.position = new Vector3(0,-Offest/2,0);
+            collider.points = lens.ToArray();
+        }
+
+        if (Shapes == shapes.semiCircle)
+        {
+            List<Vector2> semicircle = CreateSemicircle();
+            Vector3[] vector3Vertices = new Vector3[semicircle.Count];
+            for (int i = 0; i < semicircle.Count; i++)
+            {
+                vector3Vertices[i] = new Vector3(semicircle[i].x, semicircle[i].y, 1);
+            }
+            mesh.Clear();
+            mesh.vertices = vector3Vertices;
+            mesh.triangles = CreateTriangles(vector3Vertices);
+            mesh.RecalculateNormals();
+
+            //transform.position = new Vector3(0,-Offest/2,0);
+            collider.points = semicircle.ToArray();
+        }
     }
 }
