@@ -11,11 +11,12 @@ public class LensScript : MonoBehaviour
     public int PointAmount;
     public float Offest;
     public float IndexOfRefraction;
-
+    public float ArcHeight;
     public enum shapes
     {
         Lens,
-        semiCircle
+        semiCircle,
+        Arc
     }
     public shapes Shapes;
     Mesh mesh;
@@ -93,7 +94,6 @@ public class LensScript : MonoBehaviour
         }
         return ints.ToArray();
     }
-
     List<Vector2>[] CreateLens()
     {
         
@@ -130,6 +130,25 @@ public class LensScript : MonoBehaviour
         }
 
         return semicircle;
+    }
+
+    List<Vector2> CreateArc()
+    {
+        Vector2[] circle = DrawCirclePoints(radius, PointAmount);
+        List<Vector2> arc = new List<Vector2>();
+        for (int i = 0; i < circle.Length; i++)
+        {
+            if (circle[i].y > radius - ArcHeight)
+            {
+                arc.Add(circle[i]);
+            }
+        }
+        float dx = (arc[0].x - arc[arc.Count - 1].x) / 100;
+        for (int i = 0; i < 100; i++)
+        {
+            arc.Add(new Vector2(arc[0].x - (dx * i), arc[0].y));
+        }
+        return arc;
     }
     void Start()
     {
@@ -172,6 +191,22 @@ public class LensScript : MonoBehaviour
 
             //transform.position = new Vector3(0,-Offest/2,0);
             collider.points = semicircle.ToArray();
+        }
+
+        if (Shapes == shapes.Arc)
+        {
+            List<Vector2> arc = CreateArc();
+            Vector3[] vector3Vertices = new Vector3[arc.Count];
+            for (int i = 0; i < arc.Count; i++)
+            {
+                vector3Vertices[i] = new Vector3(arc[i].x, arc[i].y, 1);
+            }
+            mesh.Clear();
+            mesh.vertices = vector3Vertices;
+            mesh.triangles = CreateTriangles(vector3Vertices);
+            mesh.RecalculateNormals();
+
+            collider.points = arc.ToArray();
         }
     }
 }

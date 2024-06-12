@@ -48,10 +48,43 @@ public class RayCasting : MonoBehaviour
     {
         return Physics2D.Raycast(StartPosition, direction);
     }
+    Vector2 CalculateRefractVectorCopy(Vector2 normal, Vector2 ray, double IOR, RaycastHit2D rayhit)
+    {
+        double theta = Vector2.Angle(normal, ray);
+        double signTheta = Math.Sign(Vector2.SignedAngle(normal, ray));
+        //Debug.DrawRay(rayhit.point, normal, colors[2]);
+        //Debug.DrawRay(rayhit.point, -normal, colors[3]);
+        if (Math.Abs(theta) >= 90) theta = 180 - theta;
+        //Debug.Log("Theta 0: " + theta * signTheta);
+        theta = theta * Math.PI / 180;
+        theta = Math.Sin(theta);
+        theta *= IOR;
+        theta = Math.Asin(theta);
+        if (theta > Math.PI / 2 && DrawReflection) return Vector2.Reflect(ray, normal);
+        if (theta > Math.PI / 2 && !DrawReflection) return new Vector2();
+        Debug.Log("Theta 1: " + theta * 180 / Mathf.PI);
+        Vector2 oppositeNormal = new Vector2(-normal.x, -normal.y);
+        double thetaNormal = Vector2.Angle(normal, Vector2.right);
+        thetaNormal = thetaNormal * Math.PI / 180;
+        if ((thetaNormal < theta && signTheta == 1) || (thetaNormal > theta && signTheta == -1))
+        {
+            Vector2 dir = ConvertToDirection(thetaNormal - theta);
+            dir = new Vector2(dir.x, dir.y);
+            return dir;
+        }
+        else
+        {
+            Vector2 dir = ConvertToDirection(thetaNormal + theta);
+            dir = new Vector2(dir.x, dir.y);
+            return dir; 
+        }
+    }
     Vector2 CalculateRefractVector(Vector2 normal, Vector2 ray, double IOR, RaycastHit2D rayhit)
     {
         double theta = Vector2.Angle(normal, ray);
         double signTheta = Math.Sign(Vector2.SignedAngle(normal, ray));
+        //Debug.DrawRay(rayhit.point, normal, colors[2]);
+        //Debug.DrawRay(rayhit.point, -normal, colors[3]);
         if (Math.Abs(theta) >= 90) theta = 180 - theta;
         //Debug.Log("Theta 0: " + theta * signTheta);
         theta = theta * Math.PI / 180;
@@ -64,13 +97,17 @@ public class RayCasting : MonoBehaviour
         Vector2 oppositeNormal = new Vector2(-normal.x, -normal.y);
         double thetaNormal = Vector2.Angle(normal, Vector2.right);
         thetaNormal = thetaNormal * Math.PI / 180;
-        if (signTheta == -1)
+        if (thetaNormal < theta * 2 && signTheta == 1 || thetaNormal > theta * 2 && signTheta == -1)
         {
-            return ConvertToDirection(thetaNormal + theta);
+            Vector2 dir = ConvertToDirection(thetaNormal - theta);
+            dir = new Vector2(dir.x, dir.y);
+            return dir;
         }
         else
         {
-            return ConvertToDirection(thetaNormal - theta); 
+            Vector2 dir = ConvertToDirection(thetaNormal + theta);
+            dir = new Vector2(dir.x, dir.y);
+            return dir; 
         }
     }
     RaycastHit2D RefractRay(RaycastHit2D ray, Vector2 InDirection, int RefractNum)
@@ -89,7 +126,7 @@ public class RayCasting : MonoBehaviour
         {
             IndexOfRefraction = LastIndexOfRefraction;
         }
-        Vector2 RefractDirection = CalculateRefractVector(normal, InDirection, IndexOfRefraction, ray);
+        Vector2 RefractDirection = CalculateRefractVectorCopy(normal, InDirection, IndexOfRefraction, ray);
         Vector2 offset = RefractDirection / 1000;
         var RefractRay = hit(RefractDirection, ray.point + offset);
         if (RefractRay.collider)

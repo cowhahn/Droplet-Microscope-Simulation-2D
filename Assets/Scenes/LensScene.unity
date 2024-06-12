@@ -196,11 +196,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 456ca0a4ce7f34c4ab7c00439d266d88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 3.01
+  radius: 5.8
   PointAmount: 2000
-  Offest: 5.07
+  Offest: 9.54
   IndexOfRefraction: 1.33
-  Shapes: 1
+  ArcHeight: 0.5
+  Shapes: 2
 --- !u!33 &1754358310
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -217,13 +218,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1754358307}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!68 &1754358312
 EdgeCollider2D:
   m_ObjectHideFlags: 0
@@ -312,7 +313,7 @@ MonoBehaviour:
   RayCount: 27
   depth: 2
   DrawNoHits: 0
-  ParallelRays: 0
+  ParallelRays: 1
   DrawReflection: 0
   width: 3
 --- !u!1660057539 &9223372036854775807
