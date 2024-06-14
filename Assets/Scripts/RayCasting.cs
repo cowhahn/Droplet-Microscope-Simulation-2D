@@ -10,10 +10,13 @@ public class RayCasting : MonoBehaviour
     public bool DrawNoHits = true;
     public bool ParallelRays = false;
     public bool DrawReflection;
+    public bool DrawVirtualRays;
     public float width;
     private float LastIndexOfRefraction;
     private RaycastHit2D ray;
     private Vector2 pos;
+    private List<RaycastHit2D> rayhits;
+    private List<RaycastHit2D> virtualRayhits;
     private Color[] colors = 
     { 
         Color.cyan, 
@@ -24,7 +27,6 @@ public class RayCasting : MonoBehaviour
         Color.red, 
         Color.yellow 
     };
-
     Vector2 InitialCast(int i)
     {
         Vector2 direction = new Vector2();
@@ -50,6 +52,7 @@ public class RayCasting : MonoBehaviour
     }
     Vector2 CalculateRefractVectorCopy(Vector2 normal, Vector2 ray, double IOR, RaycastHit2D rayhit)
     {
+        Vector2 dir = new Vector2();
         double theta = Vector2.Angle(normal, ray);
         double signTheta = Math.Sign(Vector2.SignedAngle(normal, ray));
         //Debug.DrawRay(rayhit.point, normal, colors[2]);
@@ -62,22 +65,21 @@ public class RayCasting : MonoBehaviour
         theta = Math.Asin(theta);
         if (theta > Math.PI / 2 && DrawReflection) return Vector2.Reflect(ray, normal);
         if (theta > Math.PI / 2 && !DrawReflection) return new Vector2();
-        Debug.Log("Theta 1: " + theta * 180 / Mathf.PI);
+        //Debug.Log("Theta 1: " + theta * 180 / Mathf.PI);
         Vector2 oppositeNormal = new Vector2(-normal.x, -normal.y);
         double thetaNormal = Vector2.Angle(normal, Vector2.right);
         thetaNormal = thetaNormal * Math.PI / 180;
         if ((thetaNormal < theta && signTheta == 1) || (thetaNormal > theta && signTheta == -1))
         {
-            Vector2 dir = ConvertToDirection(thetaNormal - theta);
+            dir = ConvertToDirection(thetaNormal - theta);
             dir = new Vector2(dir.x, dir.y);
-            return dir;
         }
         else
         {
-            Vector2 dir = ConvertToDirection(thetaNormal + theta);
+            dir = ConvertToDirection(thetaNormal + theta);
             dir = new Vector2(dir.x, dir.y);
-            return dir; 
         }
+        return dir;
     }
     Vector2 CalculateRefractVector(Vector2 normal, Vector2 ray, double IOR, RaycastHit2D rayhit)
     {
@@ -138,6 +140,9 @@ public class RayCasting : MonoBehaviour
         else
         {
             Debug.DrawRay(ray.point, RefractDirection*100, Color.red);
+            rayhits.Add(hit(RefractDirection, ray.point));
+            if (DrawVirtualRays) Debug.DrawRay(ray.point, -RefractDirection*100, Color.green);
+            virtualRayhits.Add(hit(RefractDirection, ray.point));
             return RefractRay;
         }
     }
@@ -182,6 +187,6 @@ public class RayCasting : MonoBehaviour
                 if(DrawNoHits) Debug.DrawRay(pos,direction*100);
             }
         }
+        for (int i = 0; i < rayhits.Count; )
     }
-        
 }
