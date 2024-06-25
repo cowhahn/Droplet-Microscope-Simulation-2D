@@ -16,7 +16,8 @@ public class LensScript : MonoBehaviour
     {
         Lens,
         semiCircle,
-        Arc
+        Arc,
+        Rectangle
     }
     public shapes Shapes;
     Mesh mesh;
@@ -150,6 +151,27 @@ public class LensScript : MonoBehaviour
         }
         return arc;
     }
+
+    List<Vector2> CreateRect()
+    {
+        float height = 1f;
+        return new List<Vector2>()
+        {
+            new Vector2(0,0),
+            new Vector2(radius*2, 0),
+            new Vector2(radius*2, -height),
+            new Vector2(0, -height)
+        };
+    }
+
+    int[] CreateTrianglesRect(Vector3[] vector3s)
+    {
+        return new int[]
+        {
+            2,0,1,
+            3,0,2
+        };
+    }
     void Start()
     {
         mesh = GetComponent<MeshFilter>().mesh;
@@ -165,7 +187,7 @@ public class LensScript : MonoBehaviour
 
             for (int i = 0; i < lens.Count; i++)
             {
-                Vector3Vertices[i] = new Vector3(lens[i].x, lens[i].y, 1);
+                Vector3Vertices[i] = new Vector3(lens[i].x, lens[i].y, 0);
             }
             mesh.Clear();
             mesh.vertices = Vector3Vertices;
@@ -182,7 +204,7 @@ public class LensScript : MonoBehaviour
             Vector3[] vector3Vertices = new Vector3[semicircle.Count];
             for (int i = 0; i < semicircle.Count; i++)
             {
-                vector3Vertices[i] = new Vector3(semicircle[i].x, semicircle[i].y, 1);
+                vector3Vertices[i] = new Vector3(semicircle[i].x, semicircle[i].y, 0);
             }
             mesh.Clear();
             mesh.vertices = vector3Vertices;
@@ -199,14 +221,32 @@ public class LensScript : MonoBehaviour
             Vector3[] vector3Vertices = new Vector3[arc.Count];
             for (int i = 0; i < arc.Count; i++)
             {
-                vector3Vertices[i] = new Vector3(arc[i].x, arc[i].y, 1);
-            }
+                vector3Vertices[i] = new Vector3(arc[i].x, arc[i].y, 0);
+            } 
             mesh.Clear();
             mesh.vertices = vector3Vertices;
             mesh.triangles = CreateTriangles(vector3Vertices);
             mesh.RecalculateNormals();
 
             collider.points = arc.ToArray();
+        }
+
+        if (Shapes == shapes.Rectangle)
+        {
+            List<Vector2> rect = CreateRect();
+            Vector3[] vector3Vertices = new Vector3[rect.Count];
+            for (int i = 0; i < rect.Count; i++)
+            {
+                vector3Vertices[i] = new Vector3(rect[i].x, rect[i].y, 0);
+            }
+        
+            mesh.Clear();
+            mesh.vertices = vector3Vertices;
+            mesh.triangles = CreateTrianglesRect(vector3Vertices);
+            mesh.RecalculateNormals();
+
+            collider.points = rect.ToArray();
+            transform.position = new Vector3(-radius, 0, 0);
         }
     }
 }
