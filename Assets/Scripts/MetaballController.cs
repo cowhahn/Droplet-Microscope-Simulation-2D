@@ -91,7 +91,7 @@ public class MetaballController : MonoBehaviour
                         msIdents[i, j] = 0b1001;
                         break;
                     case 0b1000:
-                        msIdents[i, j] = 0b0011;
+                        msIdents[i, j] = 0b1001;
                         break;
                     case 0b1100:
                         msIdents[i, j] = 0b0101;
@@ -147,12 +147,14 @@ public class MetaballController : MonoBehaviour
         _vertices.Clear();
         _triangles = new List<int>();
         _triangles.Clear();
+        List<Vector2> colliderPoints = new List<Vector2>();
         for (int i = 0; i < resolution + 1; i++)
         {
             for (int j = 0; j < resolution + 1; j++)
             {
                 switch (vertConnects[i, j])
-                {
+                { 
+                        
                     case 0b10000:
                         _vertices.Add(new Vector3(j * _dx + _startLoc.x, i * _dy + _startLoc.y, 0));
                         _vertices.Add(new Vector3((j + 1) * _dx + _startLoc.x, i * _dy + _startLoc.y, 0));
@@ -165,13 +167,28 @@ public class MetaballController : MonoBehaviour
                         _triangles.Add(_vertices.Count - 1);
                         _triangles.Add(_vertices.Count - 3);
                         break;
-                    case 0b1100:
-                        _vertices.Add(new Vector3(j * _dx + _startLoc.x, i * _dy + _startLoc.y, 0));
-                        _vertices.Add(new Vector3(j * _dx + _startLoc.x, i * _dy + _startLoc.y, 0));
+                        case 0b1100:
+                            colliderPoints.Add(new Vector2((j + 1) * _dx + _startLoc.x, i * _dy + _startLoc.y));
+                            colliderPoints.Add(new Vector2(j * _dx + _startLoc.x, (i - 1) * _dy + _startLoc.y));
+                            break;
+                        case 0b0110:
+                            colliderPoints.Add(new Vector2(j * _dx + _startLoc.x, i * _dy + _startLoc.y));
+                            colliderPoints.Add(new Vector2((j + 1) * _dx + _startLoc.x, (i - 1) * _dy + _startLoc.y));
+                            break;
+                        case 0b0011:
+                            colliderPoints.Add(new Vector2((j + 1) * _dx + _startLoc.x, i * _dy + _startLoc.y )); 
+                            colliderPoints.Add(new Vector2(j * _dx + _startLoc.x, (i - 1) * _dy + _startLoc.y));
+                            break;
+                        case 0b1001:
+                            colliderPoints.Add(new Vector2(j * _dx + _startLoc.x, i * _dy + _startLoc.y));
+                            colliderPoints.Add(new Vector2((j + 1) * _dx + _startLoc.x, (i - 1) * _dy + _startLoc.y));
+                            break;
                         
                 }
             }
         }
+        
+        _edgeCollider2D.points = colliderPoints.ToArray();
     }
 
     void Start()
@@ -187,8 +204,8 @@ public class MetaballController : MonoBehaviour
         float width = 9;
         //Debug.Log(width);
         _startLoc = new Vector2(camera.transform.position.x - width, camera.transform.position.y - height);
-        _dy = height * 2 / resolution;
-        _dx = width * 2 / resolution;
+        _dy = (height * 2) / resolution;
+        _dx = (width * 2) / resolution;
         _lastPosition = new Vector3[_metaballs.Length];
     }
     
