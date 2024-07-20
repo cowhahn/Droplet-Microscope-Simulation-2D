@@ -187,10 +187,8 @@ public class MetaballController : MonoBehaviour
                 }
             }
         }
-        
         _edgeCollider2D.points = colliderPoints.ToArray();
     }
-
     void Start()
     {
 

@@ -7,6 +7,7 @@ using Vector2 = UnityEngine.Vector2;
 
 public class RayCasting : MonoBehaviour
 {
+    
     public int RayCount;
     public int depth;
     public bool DrawNoHits = true;
@@ -21,6 +22,9 @@ public class RayCasting : MonoBehaviour
     public float focalPoint;
     public float outputAngle;
     public float lineWidth;
+    public List<double> LSA = new List<double>();
+    public List<double> TSA = new List<double>();
+    
     private float LastIndexOfRefraction;
     private RaycastHit2D ray;
     private Vector2 pos;
@@ -189,8 +193,28 @@ public class RayCasting : MonoBehaviour
         yi += p1.y;
         return new Vector2((float)xi, (float)yi);
     }
+
+    void AbberationCalculations()
+    {
+        for (int i = 0; i < rays.Count; i++)
+        {
+            double invslope = (rays[i][1].x - rays[i][0].x) / (rays[i][1].y - rays[i][0].y);
+            double foo = yavg - rays[i][0].y;
+            foo *= invslope;
+            foo += rays[i][0].x;
+            LSA.Add(foo);
+            double slope = (rays[i][1].y - rays[i][0].y) / (rays[i][1].x - rays[i][0].x);
+            foo = xavg - rays[i][0].x;
+            foo *= slope;
+            foo += rays[i][0].y;
+            foo -= foo;
+            TSA.Add(foo);
+        }
+    }
     void Update()
     {
+        LSA = new List<double>();
+        TSA = new List<double>();
         lineCount = 0;
         startAngle = (Mathf.PI/2) - (outputAngle / 2);
         for (int i = 0; i < RayCount; i++)
@@ -257,7 +281,7 @@ public class RayCasting : MonoBehaviour
         
         ydev /= count;
         ydev = Mathf.Sqrt(ydev);
-        
+        AbberationCalculations();
         rays.Clear();
         _lineNames.Sort();
     }

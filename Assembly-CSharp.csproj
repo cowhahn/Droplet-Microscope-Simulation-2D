@@ -50,6 +50,7 @@
     <Compile Include="Assets/Scripts/LensScript.cs" />
     <Compile Include="Assets/Scripts/ResolutionText.cs" />
     <Compile Include="Assets/Scripts/SimulationController.cs" />
+    <Compile Include="Assets/Scripts/AbberationTextController.cs" />
     <Compile Include="Assets/Scripts/RayImageText.cs" />
     <Compile Include="Assets/Scripts/RayCasting.cs" />
     <Compile Include="Assets/Scripts/MetaballController.cs" />
